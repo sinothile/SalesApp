@@ -26,24 +26,30 @@ namespace SalesApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(OrderDTO order)
         {
-            var newOrder = new Order
+            var userId = HttpContext.Request.Cookies["userId"];
+            if (ModelState.IsValid)
             {
-                CustomerName = order.CustomerName,
-                OrderDate = DateTime.Now,
-                UserID = order.UserId,
-                Discount = order.OrderItems.Select(x=> x.Price).Sum() > 200 ? 0.03 * (double)order.OrderItems.Select(x => x.Price).Sum() : order.OrderItems.Select(x => x.Price).Sum() > 500 ? 0.1 * (double)order.OrderItems.Select(x => x.Price).Sum() : 0,
-                SalesValueExcludingVAT = order.TotalPrice - order.Vat,
-                SalesValueIncludingVAT = order.TotalPrice,
-                OrderDetails = order.OrderItems.Select(x => new OrderDetails
+                var newOrder = new Order
                 {
-                    ProductID = x.ProductId,
-                    Quantity = x.Quantity,
-                }).ToList()
-            };
+                    CustomerName = order.CustomerName,
+                    OrderDate = DateTime.Now,
+                    UserID = !string.IsNullOrEmpty(userId) ? int.Parse(userId) : 0,
+                    Discount = order.OrderItems.Select(x => x.Price).Sum() > 200 ? 0.03 * (double)order.OrderItems.Select(x => x.Price).Sum() : order.OrderItems.Select(x => x.Price).Sum() > 500 ? 0.1 * (double)order.OrderItems.Select(x => x.Price).Sum() : 0,
+                    SalesValueExcludingVAT = order.TotalPrice - order.Vat,
+                    SalesValueIncludingVAT = order.TotalPrice,
+                    OrderDetails = order.OrderItems.Select(x => new OrderDetails
+                    {
+                        ProductID = x.ProductId,
+                        Quantity = x.Quantity,
+                    }).ToList()
+                };
 
-            var isOrderPlaced = await _orderService.PlaceOrder(newOrder);
-            if (isOrderPlaced)
-                return RedirectToAction("Index", "Products");
+                var isOrderPlaced = await _orderService.PlaceOrder(newOrder);
+                if (isOrderPlaced)
+                    return RedirectToAction("Index", "Products");
+
+                return View("Error");
+            }
 
             return View("Error");
         }

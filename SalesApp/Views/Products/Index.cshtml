@@ -47,14 +47,9 @@
 </div>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/jquery/dist/jquery.js"></script>
-<script type="text/javascript"
-        src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script>
 
     $(document).ready(function () {
-        var cookie = document.cookie;
-        var userId = parseInt(cookie.substring(cookie.length - 1));
-        console.log(userId);
         var products = [...@Html.Raw(Json.Serialize(@Model))];
         var array = [];
         $("#checkout").click(function () {
@@ -75,7 +70,7 @@
             });
 
             if (array.length > 0) {
-                var payload = { UserId: userId, OrderItems: array };
+                var payload = { UserId: 0, OrderItems: array };
                 window.location.href = window.location.href.replace('/Products', '/Order/Index?orderJson=' + JSON.stringify(payload))
             }
             else{
