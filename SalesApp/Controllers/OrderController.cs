@@ -45,7 +45,7 @@ namespace SalesApp.Controllers
             if (isOrderPlaced)
                 return RedirectToAction("Index", "Products");
 
-            return View(order);
+            return View("Error");
         }
     }
 }

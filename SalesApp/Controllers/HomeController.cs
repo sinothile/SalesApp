@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SalesApp.Models;
 using System.Diagnostics;
-using System.Net.Http.Headers;
-using Newtonsoft.Json;
 
 namespace SalesApp.Controllers
 {
@@ -24,21 +22,15 @@ namespace SalesApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (userDetails != null)
+                if (userDetails == null) return RedirectToAction("Index");
+                if (userDetails.UserName.ToLower() == "zane" && userDetails.Password == "123@pass")
                 {
-                    int userId = 0;
-                    if (userDetails.UserName.ToLower() == "zane" && userDetails.Password == "123@pass")
-                    {
-                        userId = 1;
-                        Response.Cookies.Append("userId", $"{userId}");
-                        return RedirectToAction("Index", "Products");
-                    }
-                    if (userDetails.UserName.ToLower() == "lerato" && userDetails.Password == "Nunit@321")
-                    {
-                        userId = 2;
-                        Response.Cookies.Append("userId", $"{userId}");
-                        return RedirectToAction("Index", "Products");
-                    }
+                    return SetCookieAndRedirect(1);
+                }
+                if (userDetails.UserName.ToLower() == "lerato" && userDetails.Password == "Nunit@321")
+                {
+                    return SetCookieAndRedirect(2);
+
                 }
             }
 
@@ -50,6 +42,12 @@ namespace SalesApp.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private IActionResult SetCookieAndRedirect(int userId)
+        {
+            Response.Cookies.Append("userId", $"{userId}");
+            return RedirectToAction("Index", "Products");
         }
     }
 }
