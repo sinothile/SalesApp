@@ -1,0 +1,74 @@
+﻿@model SalesApp.Models.OrderDTO
+
+<div class="container p-3">
+<form asp-controller="Order" asp-action="Create">
+    <div >
+        <label>Customer Name</label>
+        <input asp-for="CustomerName" class="form-control" />
+    </div>
+    <br/>
+    <table class="table table-bordered table-striped" style="width: 100%;">
+        <thead>
+        <tr>
+            <th>
+                @Html.Label("Product Name")
+            </th>
+            <th>
+                @Html.Label("Quantity")
+            </th>
+            <th>
+                @Html.Label("Price")
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    @for (int i = 0; i < Model.OrderItems.Count; ++i)
+    {
+        @Html.HiddenFor(x => x.OrderItems[i].ProductId)
+        ;
+        @Html.HiddenFor(x => x.OrderItems[i].ProductName)
+        ;
+        @Html.HiddenFor(x => x.OrderItems[i].Price)
+        ;
+        @Html.HiddenFor(x => x.OrderItems[i].Quantity)
+    }
+
+    @Html.HiddenFor(x=>x.UserId)
+    <input type="submit" value="Checkout" class="btn btn-success" />
+</form>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#oderItems').val() = @Model.OrderItems;
+        var products = [...@Html.Raw(Json.Serialize(@Model))];
+        console.log(products);
+        var items = [];
+        products.forEach(product => {
+            items.push({
+                OrderDetailID: 0,
+                OrderID: 0,
+                ProductID: product.productId,
+                Quantity: product.quantity
+            });
+        });
+    });
+</script>
