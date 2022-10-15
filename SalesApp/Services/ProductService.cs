@@ -11,22 +11,17 @@ namespace SalesApp.Services
         {
             _httpClient = httpClient;
         }
-        public async Task<List<ProductViewModel>> GetAllProducts()
+        public async Task<ProductViewModel> GetAllProducts()
         {
             var client = _httpClient.CreateClient("httpClient");
             var response = await client.GetAsync("api/Products");
             var jsonResponse = await response.Content.ReadAsStringAsync();
-            var products = JsonConvert.DeserializeObject<List<ProductViewModel>>(jsonResponse);
+            var products = JsonConvert.DeserializeObject<List<Product>>(jsonResponse);
 
-            return products.Select(prod => new ProductViewModel
+            return new ProductViewModel
             {
-                CategoryName = prod.CategoryName,
-                ProductId = prod.ProductId,
-                UnitPrice = prod.UnitPrice,
-                Quantity = 1,
-                ProductName = prod.ProductName,
-                OrderDetails = prod.OrderDetails,
-            }).ToList();
+                Products = products
+            };
         }
     }
 }

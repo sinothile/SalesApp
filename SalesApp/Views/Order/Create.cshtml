@@ -1,40 +1,47 @@
 ﻿@model SalesApp.Models.OrderDTO
 
-<div class="container p-3">
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
 <form asp-controller="Order" asp-action="Create">
     <div>
         <label>Customer Name</label>
         <input asp-for="CustomerName" class="form-control" />
+        @Html.ValidationMessageFor(m => m.CustomerName, "", new { @class = "text-danger" })
     </div>
-    <table class="table table-bordered table-striped" style="width: 100%;">
+    <table class="table">
         <thead>
-        <tr>
-            <th>
-                @Html.Label("Product Name")
-            </th>
-            <th>
-                @Html.Label("Quantity")
-            </th>
-            <th>
-                @Html.Label("Price")
-            </th>
-        </tr>
+            <tr>
+                <th>
+                    @Html.Label("Product Name")
+                </th>
+                <th>
+                    @Html.Label("Quantity")
+                </th>
+                <th>
+                    @Html.Label("Price")
+                </th>
+                <th></th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var item in Model.OrderItems)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProductName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Quantity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Price)
-                </td>
-            </tr>
-        }
+            @foreach (var item in Model.OrderItems)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ProductName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Quantity)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Price)
+                    </td>
+                </tr>
+            }
 
         </tbody>
 
@@ -66,4 +73,4 @@
 
     <input type="submit" value="Checkout" class="btn btn-success" />
 </form>
-</div>
+

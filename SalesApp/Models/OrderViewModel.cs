@@ -8,6 +8,6 @@ namespace SalesApp.Models
         public int Quantity { get; set; }
         [DisplayName("Product Name")]
         public string ProductName { get; set; }
-        public Decimal Price { get; set; }
+        public Double Price { get; set; }
     }
 }

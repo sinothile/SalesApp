@@ -12,46 +12,57 @@ namespace SalesApp.Controllers
         {
             _orderService = orderService;
         }
-        [HttpGet]
-        public IActionResult Index(string orderJson)
-        {
-            var order = JsonSerializer.Deserialize<OrderDTO>(orderJson);
-            var totalPrice = (Double)order?.OrderItems.Select(x => x.Price).Sum();
 
-            order.Vat = 0.15 * totalPrice;
-            order.TotalPrice = totalPrice + order.Vat;
-            return View(order);
+        [HttpPost]
+        public IActionResult Index(List<Product> products)
+        {
+            var selectedProducts = products.Where(x => x.IsChecked && x.Quantity > 0).Select(x => x).ToList();
+            var orderItems = selectedProducts.Select(x => new OrderViewModel
+            {
+                Price = x.UnitPrice,
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                Quantity = x.Quantity
+            }).ToList();
+
+            var totalPrice = orderItems.Select(x => (x.Price*x.Quantity)).Sum();
+            var vat = 0.15 * totalPrice;
+            var price = totalPrice + vat;
+
+            return View(new OrderDTO
+            {
+                CustomerName = null,
+                OrderItems = orderItems,
+                TotalPrice = price,
+                Vat = vat
+            });
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(OrderDTO order)
         {
-            var userId = HttpContext.Request.Cookies["userId"];
-            if (ModelState.IsValid)
+            var userId = int.Parse(HttpContext.Request.Cookies["userId"]);
+            var newOrder = new Order
             {
-                var newOrder = new Order
+                CustomerName = order.CustomerName,
+                OrderDate = DateTime.Now,
+                UserID = userId,
+                Discount = order.OrderItems.Select(x => (x.Price * x.Quantity)).Sum() > 200 ? 0.03 * (double)order.OrderItems.Select(x => (x.Price * x.Quantity)).Sum() : order.OrderItems.Select(x => (x.Price * x.Quantity)).Sum() > 500 ? 0.1 * (double)order.OrderItems.Select(x => (x.Price * x.Quantity)).Sum() : 0,
+                SalesValueExcludingVAT = order.TotalPrice - order.Vat,
+                SalesValueIncludingVAT = order.TotalPrice,
+                OrderDetails = order.OrderItems.Select(x => new OrderDetails
                 {
-                    CustomerName = order.CustomerName,
-                    OrderDate = DateTime.Now,
-                    UserID = !string.IsNullOrEmpty(userId) ? int.Parse(userId) : 0,
-                    Discount = order.OrderItems.Select(x => x.Price).Sum() > 200 ? 0.03 * (double)order.OrderItems.Select(x => x.Price).Sum() : order.OrderItems.Select(x => x.Price).Sum() > 500 ? 0.1 * (double)order.OrderItems.Select(x => x.Price).Sum() : 0,
-                    SalesValueExcludingVAT = order.TotalPrice - order.Vat,
-                    SalesValueIncludingVAT = order.TotalPrice,
-                    OrderDetails = order.OrderItems.Select(x => new OrderDetails
-                    {
-                        ProductID = x.ProductId,
-                        Quantity = x.Quantity,
-                    }).ToList()
-                };
+                    ProductID = x.ProductId,
+                    Quantity = x.Quantity
+                }).ToList()
+,
+            };
 
-                var isOrderPlaced = await _orderService.PlaceOrder(newOrder);
-                if (isOrderPlaced)
-                    return RedirectToAction("Index", "Products");
+            var isOrderPlaced = await _orderService.PlaceOrder(newOrder);
+            if (isOrderPlaced)
+                return RedirectToAction("Index", "Products");
 
-                return View("Error");
-            }
-
-            return View("Error");
+            return View(order);
         }
     }
 }

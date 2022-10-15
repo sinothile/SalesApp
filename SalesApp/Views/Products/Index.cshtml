@@ -1,81 +1,59 @@
-﻿@model IEnumerable<SalesApp.Models.ProductViewModel>
+﻿@model SalesApp.Models.ProductViewModel
 
 @{
     ViewData["Title"] = "Index";
 }
-
 <div class="container p-3">
     <div class="row pt-4">
         <div class="col-6">
             <h2 class="text-primary">Products</h2>
         </div>
     </div>
+<form asp-controller="Order" asp-action="Index">
     <table class="table table-bordered table-striped" style="width: 100%;">
-            <thead>
+        <thead>
+        <tr>
+            <th>Select</th>
+            <th>
+                @Html.DisplayName("Product Name")
+            </th>
+            <th>
+                @Html.DisplayName("Unit Price")
+            </th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @for (int i = 0; i < Model.Products.Count; ++i)
+        {
             <tr>
-                <th>Select</th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ProductName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.UnitPrice)
-                </th>
-                <th>Quantity</th>
+                <td style="width: 40px">
+                    @Html.CheckBoxFor(m => m.Products[i].IsChecked)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.Products[i].ProductName, new { htmlAttributes = new { @class = "form-control" } })
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.Products[i].UnitPrice)
+                </td>
+                <td>
+                    <input asp-for="@Model.Products[i].Quantity"/>
+                </td>
+                @Html.HiddenFor(x => Model.Products[i].UnitPrice)
+                @Html.HiddenFor(x => Model.Products[i].IsChecked)
+                @Html.HiddenFor(x => Model.Products[i].ProductName)
+                @Html.HiddenFor(x => Model.Products[i].Quantity)
+                @Html.HiddenFor(x => x.Products[i].ProductId)
+                @Html.HiddenFor(x => x.Products[i].ProductName)
+                @Html.HiddenFor(x => x.Products[i].UnitPrice)
+                @Html.HiddenFor(x => x.Products[i].Quantity)
+                @Html.HiddenFor(x => x.Products[i].IsChecked)
+                @Html.HiddenFor(x => x.Products[i].CategoryName)
             </tr>
-            </thead>
-            <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td style="width: 40px">
-                        <input type="checkbox" asp-for="@item.IsChecked" quntity="@item.Quantity" name="cart" value="@item.ProductId.ToString()" />
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ProductName, new { htmlAttributes = new { @class = "form-control" } })
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UnitPrice)
-                    </td>
-                    <td>
-                        <input asp-for="@item.Quantity" value="@item.Quantity" id="quantityInput_@item.ProductId"/>
-                    </td>
-                </tr>
-            }
-            </table>
-    <button class="btn btn-success" id="checkout">Place Order</button>
+        }
+        </tbody>
+    </table>
 
+    <button class="btn btn-success" type="submit" id="checkout">Place Order</button>
+</form>
 </div>
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/jquery/dist/jquery.js"></script>
-<script>
-
-    $(document).ready(function () {
-        var products = [...@Html.Raw(Json.Serialize(@Model))];
-        var array = [];
-        $("#checkout").click(function () {
-            array = [];
-            $('input[type=checkbox]').each(function (el, object) {
-                var productId = (this.checked ? $(this).val() : "");
-                console.log(productId);
-                if (productId != '') {
-                    var selectedProduct = products.find(x => x.productId == productId);
-                    productId = parseInt(productId);
-                    array.push({
-                        ProductId: productId,
-                        ProductName: selectedProduct.productName,
-                        Price: selectedProduct.unitPrice,
-                        Quantity: parseInt($('#quantityInput_' + productId).val())
-                    });
-                }
-            });
-
-            if (array.length > 0) {
-                var payload = { UserId: 0, OrderItems: array };
-                window.location.href = window.location.href.replace('/Products', '/Order/Index?orderJson=' + JSON.stringify(payload))
-            }
-            else{
-                alert("Please select atleast one product")
-            }
-        });
-    });
-</script>

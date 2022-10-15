@@ -4,16 +4,7 @@ namespace SalesApp.Models
 {
     public class ProductViewModel
     {
-        public int ProductId { get; set; }
-        [DisplayName("Product Name")]
-        public string ProductName { get; set; }
-        [DisplayName("Category")]
-        public string CategoryName { get; set; }
-        public int Quantity { get; set; }
-        [DisplayName("Unit Price")]
-        public double UnitPrice { get; set; }
-        public bool IsChecked { get; set; }
-        public List<OrderDetailsViewModel> OrderDetails { get; set; }
+        public List<Product> Products { get; set; }
     }   
 }
     

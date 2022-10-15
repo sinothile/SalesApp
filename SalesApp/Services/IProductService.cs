@@ -4,6 +4,6 @@ namespace SalesApp.Services
 {
     public interface IProductService
     {
-        Task<List<ProductViewModel>> GetAllProducts();
+        Task<ProductViewModel> GetAllProducts();
     }
 }

@@ -12,7 +12,6 @@ namespace SalesApp.Controllers
             _productService = productService;
         }
 
-        // GET: ProductsController
         public async Task<ActionResult> Index()
         {
             var products = await _productService.GetAllProducts();
