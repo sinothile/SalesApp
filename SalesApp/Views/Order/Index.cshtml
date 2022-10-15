@@ -38,6 +38,15 @@
         }
         </tbody>
     </table>
+    <div class="row">
+        <div class="totals">
+
+            <p>Total price INC Vat: <bold>@Html.DisplayFor(x=>x.TotalPrice) .00</bold></p>
+            <p>
+                Vat: <bold> @Html.DisplayFor(x=>x.Vat) .00</bold>
+            </p>
+        </div>
+    </div>
 
     @for (int i = 0; i < Model.OrderItems.Count; ++i)
     {
@@ -51,6 +60,8 @@
     }
 
     @Html.HiddenFor(x=>x.UserId)
+    @Html.HiddenFor(x=>x.Vat)
+    @Html.HiddenFor(x=>x.TotalPrice)
     <input type="submit" value="Checkout" class="btn btn-success" />
 </form>
 </div>

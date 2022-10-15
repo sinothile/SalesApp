@@ -15,8 +15,12 @@ namespace SalesApp.Controllers
         [HttpGet]
         public IActionResult Index(string orderJson)
         {
-            var orders = JsonSerializer.Deserialize<OrderDTO>(orderJson);
-            return View(orders);
+            var order = JsonSerializer.Deserialize<OrderDTO>(orderJson);
+            var totalPrice = (Double)order?.OrderItems.Select(x => x.Price).Sum();
+
+            order.Vat = 0.15 * totalPrice;
+            order.TotalPrice = totalPrice + order.Vat;
+            return View(order);
         }
 
         [HttpPost]
@@ -28,8 +32,8 @@ namespace SalesApp.Controllers
                 OrderDate = DateTime.Now,
                 UserID = order.UserId,
                 Discount = order.OrderItems.Select(x=> x.Price).Sum() > 200 ? 0.03 * (double)order.OrderItems.Select(x => x.Price).Sum() : order.OrderItems.Select(x => x.Price).Sum() > 500 ? 0.1 * (double)order.OrderItems.Select(x => x.Price).Sum() : 0,
-                SalesValueExcludingVAT = 7,
-                SalesValueIncludingVAT = 2,
+                SalesValueExcludingVAT = order.TotalPrice - order.Vat,
+                SalesValueIncludingVAT = order.TotalPrice,
                 OrderDetails = order.OrderItems.Select(x => new OrderDetails
                 {
                     ProductID = x.ProductId,
